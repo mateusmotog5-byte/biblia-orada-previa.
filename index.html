@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bíblia Orada</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Manrope:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: protótipo de celular centralizado (no desktop) / tela cheia (no celular); leitura em serifa, interface em sans */
+:root{
+  --bg:#E9EDF3;        /* fundo da página fora do aparelho */
+  --app:#F6F7FA;       /* fundo do app */
+  --surface:#FFFFFF;
+  --ink:#18202E;
+  --muted:#5E6878;
+  --line:#DDE2EA;
+  --deep:#22305A;      /* azul da madrugada: cartões de destaque */
+  --deep-ink:#F3F5FB;
+  --dawn:#C7801C;      /* âmbar do amanhecer: progresso e oração */
+  --dawn-soft:#F6E7CF;
+  --good:#2F7D5B;
+  --f-read:"Literata", Georgia, "Times New Roman", serif;
+  --f-ui:"Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --read-size:19px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0B0F18;--app:#111725;--surface:#1A2234;--ink:#E8ECF3;--muted:#9AA4B6;--line:#2A3448;
+  --deep:#2C3E73;--deep-ink:#F3F5FB;--dawn:#F0AE48;--dawn-soft:#3A2E1A;--good:#5CC197;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B0F18;--app:#111725;--surface:#1A2234;--ink:#E8ECF3;--muted:#9AA4B6;--line:#2A3448;
+  --deep:#2C3E73;--deep-ink:#F3F5FB;--dawn:#F0AE48;--dawn-soft:#3A2E1A;--good:#5CC197;color-scheme:dark}
+
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;
+  padding-left:max(16px, env(safe-area-inset-left,0px));padding-right:max(16px, env(safe-area-inset-right,0px));padding-block:24px;box-sizing:border-box}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,textarea:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--dawn);outline-offset:2px}
+
+.stage{display:flex;gap:40px;justify-content:center;align-items:center;min-height:100%;flex-wrap:wrap}
+.aside{max-width:300px;display:flex;flex-direction:column;gap:14px}
+.aside h1{font-family:var(--f-read);font-weight:600;font-size:30px;margin:0;text-wrap:balance}
+.aside p{margin:0;color:var(--muted);line-height:1.55}
+.aside .demo{display:flex;flex-wrap:wrap;gap:8px}
+.chipbtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:600}
+.phone{width:390px;height:820px;max-height:calc(100vh - 48px);min-height:640px;background:var(--app);border-radius:46px;
+  border:10px solid #0d1220;box-shadow:0 30px 70px rgba(16,24,40,.28);overflow:hidden;position:relative;display:flex;flex-direction:column}
+@media (max-width:760px){
+  body{padding:0}
+  .stage{display:block;height:100%}
+  .aside{display:none}
+  .phone{width:100%;height:100%;max-height:none;min-height:0;border:0;border-radius:0;box-shadow:none}
+}
+.screen{flex:1;overflow-y:auto;overflow-x:hidden;padding:22px max(20px, env(safe-area-inset-left,0px)) 24px;scroll-behavior:smooth}
+.tabbar{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);background:var(--surface);
+  padding:6px 4px calc(8px + env(safe-area-inset-bottom,0px))}
+.tab{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;font-size:11px;font-weight:600;color:var(--muted)}
+.tab svg{width:22px;height:22px}
+.tab[aria-current="page"]{color:var(--dawn)}
+
+/* elementos comuns */
+.eyebrow{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+h2{font-family:var(--f-read);font-weight:600;font-size:26px;line-height:1.2;margin:4px 0 0;text-wrap:balance}
+h3{font-size:16px;margin:0;font-weight:700}
+.stack{display:flex;flex-direction:column;gap:18px}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px}
+.hero{background:var(--deep);color:var(--deep-ink);border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle, color-mix(in srgb, var(--dawn) 55%, transparent) 0%, transparent 70%);pointer-events:none}
+.hero .eyebrow{color:color-mix(in srgb, var(--deep-ink) 70%, transparent)}
+.hero h2{font-size:24px}
+.btn{border:0;border-radius:14px;padding:14px 18px;font-weight:700;font-size:15px;background:var(--dawn);color:#1b1408;width:100%}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn.light{background:var(--deep-ink);color:var(--deep)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.back{background:none;border:0;padding:4px 0;font-weight:600;color:var(--muted);display:inline-flex;align-items:center;gap:6px;font-size:14px}
+
+/* 7 marcas da jornada */
+.seven{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.dot{height:30px;border-radius:9px;display:grid;place-items:center;font-size:12px;font-weight:700;
+  border:1.5px solid color-mix(in srgb, currentColor 30%, transparent)}
+.dot.done{background:var(--dawn);border-color:var(--dawn);color:#1b1408}
+.dot.now{border-color:var(--dawn);color:var(--dawn);border-width:2px}
+.hero .dot{color:var(--deep-ink)}
+.hero .dot.now{color:var(--dawn)}
+
+/* listas */
+.list{display:flex;flex-direction:column}
+.item{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--line);background:none;border-left:0;border-right:0;border-top:0;text-align:left;width:100%}
+.item:last-child{border-bottom:0}
+.badge{width:34px;height:34px;flex:none;border-radius:11px;display:grid;place-items:center;font-weight:700;font-size:13px;background:color-mix(in srgb, var(--ink) 7%, transparent)}
+.badge.done{background:var(--dawn);color:#1b1408}
+.badge.now{background:var(--dawn-soft);color:var(--dawn);outline:2px solid var(--dawn)}
+.badge.final{background:var(--deep);color:var(--deep-ink)}
+.item .grow{flex:1;min-width:0}
+.ref{font-family:var(--f-read);font-weight:600;font-size:16px}
+.chev{color:var(--muted)}
+
+.hscroll{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;margin:0 -4px;padding-inline:4px;scrollbar-width:none}
+.theme{flex:none;width:150px;border-radius:18px;padding:14px;border:1px solid var(--line);background:var(--surface);text-align:left;display:flex;flex-direction:column;gap:22px}
+.theme .t{font-family:var(--f-read);font-weight:600;font-size:17px;line-height:1.2}
+.swatch{width:28px;height:28px;border-radius:50%}
+
+/* leitor */
+.passage{font-family:var(--f-read);font-size:var(--read-size);line-height:1.7}
+.passage p{margin:0 0 .4em}
+.passage sup{font-family:var(--f-ui);font-size:.55em;font-weight:700;color:var(--dawn);margin-right:3px;vertical-align:.55em}
+.context{border-left:3px solid var(--dawn);padding:4px 0 4px 12px;color:var(--muted);font-size:14px;line-height:1.5}
+textarea{width:100%;min-height:96px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:12px;font:inherit;line-height:1.5;resize:vertical}
+
+/* gerando */
+.gen{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:22px;padding:30px 10px}
+.sun{width:110px;height:110px;border-radius:50%;background:radial-gradient(circle at 50% 60%, var(--dawn) 0%, color-mix(in srgb, var(--dawn) 25%, transparent) 55%, transparent 72%);animation:rise 2.4s ease-in-out infinite}
+@keyframes rise{0%,100%{transform:translateY(6px) scale(.95);opacity:.8}50%{transform:translateY(-4px) scale(1.04);opacity:1}}
+.steps{display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--muted);text-align:left}
+.steps .ok{color:var(--good);font-weight:700}
+
+/* resultado */
+.refs{display:flex;flex-wrap:wrap;gap:6px}
+.refchip{font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px;background:var(--dawn-soft);color:var(--ink)}
+.prayer{font-family:var(--f-read);font-size:18px;line-height:1.75;font-style:italic}
+.player{background:var(--deep);color:var(--deep-ink);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.play{width:52px;height:52px;flex:none;border-radius:50%;border:0;background:var(--dawn);display:grid;place-items:center;color:#1b1408}
+.bar{height:5px;border-radius:5px;background:color-mix(in srgb, var(--deep-ink) 25%, transparent);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--dawn);transition:width .25s linear}
+.time{font-size:12px;font-variant-numeric:tabular-nums;opacity:.8}
+
+/* bíblia */
+.seg{display:grid;grid-template-columns:1fr 1fr;background:color-mix(in srgb, var(--ink) 6%, transparent);border-radius:12px;padding:4px}
+.seg button{border:0;background:none;padding:9px;border-radius:9px;font-weight:700;font-size:13px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.books{display:grid;grid-template-columns:repeat(2,1fr);gap:0 14px}
+.books .item{padding:12px 0}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.grid button{aspect-ratio:1;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-weight:700;font-variant-numeric:tabular-nums}
+.grid button.has{border-color:var(--dawn);color:var(--dawn)}
+.search{width:100%;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:12px 14px;font:inherit}
+
+/* perfil */
+.setting{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.setting:last-child{border-bottom:0}
+select{border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px;font:inherit;font-size:13px}
+input[type=range]{accent-color:var(--dawn);width:120px}
+.premium{background:linear-gradient(160deg,var(--deep),color-mix(in srgb, var(--deep) 70%, var(--dawn)));color:var(--deep-ink);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.note{font-size:12px;color:var(--muted);line-height:1.5}
+.toast{position:absolute;left:50%;bottom:86px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--app);padding:10px 16px;border-radius:12px;font-size:13px;font-weight:600;opacity:0;transition:.25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="aside">
+    <div class="eyebrow">Prévia navegável</div>
+    <h1>Bíblia Orada</h1>
+    <p>Leia 7 trechos, um por dia. No sétimo, o app resume o que você leu e prepara uma oração para você ouvir.</p>
+    <p class="small">Toque no aparelho para navegar. O progresso fica salvo neste navegador.</p>
+    <div class="demo">
+      <button class="chipbtn" id="demo-skip">Pular para o 7º trecho</button>
+      <button class="chipbtn" id="demo-reset">Recomeçar a prévia</button>
+    </div>
+    <p class="note">Resumo e oração são exemplos fixos nesta prévia; no app, o Claude escreve cada um a partir da leitura e das anotações. Textos bíblicos de amostra.</p>
+  </div>
+
+  <div class="phone" id="phone">
+    <main class="screen" id="screen" aria-live="polite"></main>
+    <nav class="tabbar" id="tabbar" aria-label="Navegação principal"></nav>
+    <div class="toast" id="toast" role="status"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+const ICON = {
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>',
+  path:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="5" cy="18" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="6" r="2"/><path d="M6.5 16.5l4-3M13.5 10.5l4-3"/></svg>',
+  book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h10"/><path d="M11 7v5M8.5 9.5h5"/></svg>',
+  diary:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 20c-4-2.5-7-5.2-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 3.8-3 6.5-7 9z"/></svg>',
+  user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0" stroke-linecap="round"/></svg>',
+  play:'<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
+  pause:'<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>',
+  lock:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  check:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'
+};
+
+/* Jornada completa da prévia. Textos de amostra no estilo Almeida Revista e Corrigida. */
+const PAZ = {
+  id:'paz', title:'Paz na ansiedade', color:'#7A8FD1',
+  intro:'Sete trechos sobre entregar as preocupações a Deus e descansar no cuidado dele.',
+  days:[
+    {ref:'Salmos 23.1-6', short:'Sl 23', context:'Davi, que foi pastor de ovelhas, descreve Deus como o pastor que guia, alimenta e protege.',
+     v:[[1,'O Senhor é o meu pastor; nada me faltará.'],[2,'Deitar-me faz em verdes pastos, guia-me mansamente a águas tranquilas.'],[3,'Refrigera a minha alma; guia-me pelas veredas da justiça, por amor do seu nome.'],[4,'Ainda que eu andasse pelo vale da sombra da morte, não temeria mal algum, porque tu estás comigo; a tua vara e o teu cajado me consolam.'],[5,'Preparas uma mesa perante mim na presença dos meus inimigos, unges a minha cabeça com óleo, o meu cálice transborda.'],[6,'Certamente que a bondade e a misericórdia me seguirão todos os dias da minha vida; e habitarei na Casa do Senhor por longos dias.']]},
+    {ref:'Filipenses 4.6-7', short:'Fp 4', context:'Paulo escreve da prisão a uma igreja que ele amava, e mesmo assim fala de paz.',
+     v:[[6,'Não estejais inquietos por coisa alguma; antes, as vossas petições sejam em tudo conhecidas diante de Deus, pela oração e súplicas, com ação de graças.'],[7,'E a paz de Deus, que excede todo o entendimento, guardará o vosso coração e os vossos sentimentos em Cristo Jesus.']]},
+    {ref:'Mateus 6.31-34', short:'Mt 6', context:'No Sermão do Monte, Jesus fala das aves e dos lírios e conclui com estes versos.',
+     v:[[31,'Não andeis, pois, inquietos, dizendo: Que comeremos ou que beberemos ou com que nos vestiremos?'],[32,'(Porque todas essas coisas os gentios procuram.) Decerto, vosso Pai celestial bem sabe que necessitais de todas essas coisas;'],[33,'mas buscai primeiro o Reino de Deus, e a sua justiça, e todas essas coisas vos serão acrescentadas.'],[34,'Não vos inquieteis, pois, pelo dia de amanhã, porque o dia de amanhã cuidará de si mesmo. Basta a cada dia o seu mal.']]},
+    {ref:'Isaías 41.10', short:'Is 41', context:'Deus fala a um povo no exílio, longe de casa e com medo do futuro.',
+     v:[[10,'Não temas, porque eu sou contigo; não te assombres, porque eu sou teu Deus; eu te esforço, e te ajudo, e te sustento com a destra da minha justiça.']]},
+    {ref:'João 14.27', short:'Jo 14', context:'Na última ceia, pouco antes da cruz, Jesus consola os discípulos.',
+     v:[[27,'Deixo-vos a paz, a minha paz vos dou; não vo-la dou como o mundo a dá. Não se turbe o vosso coração, nem se atemorize.']]},
+    {ref:'1 Pedro 5.6-7', short:'1Pe 5', context:'Pedro escreve a cristãos espalhados e perseguidos, lembrando que Deus cuida deles.',
+     v:[[6,'Humilhai-vos, pois, debaixo da potente mão de Deus, para que, a seu tempo, vos exalte,'],[7,'lançando sobre ele toda a vossa ansiedade, porque ele tem cuidado de vós.']]},
+    {ref:'Salmos 46.1-3', short:'Sl 46', context:'Um cântico para tempos de crise: mesmo se tudo tremer, Deus continua firme.',
+     v:[[1,'Deus é o nosso refúgio e fortaleza, socorro bem presente na angústia.'],[2,'Pelo que não temeremos, ainda que a terra se mude, e ainda que os montes se transportem para o meio dos mares.'],[3,'Ainda que as águas rujam e se perturbem, ainda que os montes se abalem pela sua braveza. (Selá)']]}
+  ]
+};
+const OTHERS = [
+  {id:'grat', title:'Gratidão', color:'#D9A441', refs:['Salmos 103.1-5','1 Tessalonicenses 5.16-18','Salmos 100','Colossenses 3.15-17','Lucas 17.11-19','Salmos 136.1-9','Filipenses 4.11-13']},
+  {id:'fam', title:'Família', color:'#5FA88A', refs:['Josué 24.15','Salmos 127','Efésios 6.1-4','Rute 1.16-17','Deuteronômio 6.4-9','Colossenses 3.12-14','Salmos 128']},
+  {id:'perd', title:'Perdão', color:'#C9736B', refs:['Salmos 51.1-12','Mateus 18.21-22','Lucas 15.11-24','Efésios 4.31-32','1 João 1.9','Colossenses 3.13','Miqueias 7.18-19']},
+  {id:'forca', title:'Força no cansaço', color:'#6F9FC7', refs:['Isaías 40.28-31','Mateus 11.28-30','2 Coríntios 12.9-10','Salmos 121','Neemias 8.10','Habacuque 3.17-19','Salmos 62.1-2']},
+  {id:'prov', title:'Provisão', color:'#A68ACF', refs:['Filipenses 4.19','1 Reis 17.8-16','Mateus 6.25-30','Salmos 37.25','Gênesis 22.13-14','2 Coríntios 9.8','Salmos 34.8-10']}
+];
+const VERSE_OF_DAY = {ref:'Isaías 26.3', text:'Tu conservarás em paz aquele cuja mente está firme em ti; porque ele confia em ti.'};
+
+const OT = [['Gênesis',50],['Êxodo',40],['Levítico',27],['Números',36],['Deuteronômio',34],['Josué',24],['Juízes',21],['Rute',4],['1 Samuel',31],['2 Samuel',24],['1 Reis',22],['2 Reis',25],['1 Crônicas',29],['2 Crônicas',36],['Esdras',10],['Neemias',13],['Ester',10],['Jó',42],['Salmos',150],['Provérbios',31],['Eclesiastes',12],['Cantares',8],['Isaías',66],['Jeremias',52],['Lamentações',5],['Ezequiel',48],['Daniel',12],['Oseias',14],['Joel',3],['Amós',9],['Obadias',1],['Jonas',4],['Miqueias',7],['Naum',3],['Habacuque',3],['Sofonias',3],['Ageu',2],['Zacarias',14],['Malaquias',4]];
+const NT = [['Mateus',28],['Marcos',16],['Lucas',24],['João',21],['Atos',28],['Romanos',16],['1 Coríntios',16],['2 Coríntios',13],['Gálatas',6],['Efésios',6],['Filipenses',4],['Colossenses',4],['1 Tessalonicenses',5],['2 Tessalonicenses',3],['1 Timóteo',6],['2 Timóteo',4],['Tito',3],['Filemom',1],['Hebreus',13],['Tiago',5],['1 Pedro',5],['2 Pedro',3],['1 João',5],['2 João',1],['3 João',1],['Judas',1],['Apocalipse',22]];
+/* capítulos com amostra = trechos da jornada */
+const SAMPLE = {'Salmos 23':0,'Filipenses 4':1,'Mateus 6':2,'Isaías 41':3,'João 14':4,'1 Pedro 5':5,'Salmos 46':6};
+
+const PAST = {id:'past1', title:'Gratidão', date:'3 a 9 de novembro', refs:['Sl 103','1Ts 5','Sl 100','Cl 3','Lc 17','Sl 136','Fp 4'],
+  prayer:'Pai, nesta semana Tu me lembraste de não esquecer nenhum dos teus benefícios. Ensina-me a dar graças em tudo, como os salmos me ensinaram, e a voltar para agradecer, como o leproso curado. Que a tua paz governe o meu coração. Em nome de Jesus, amém.'};
+
+/* estado */
+const KEY='biblia-orada-previa-v1';
+const fresh = () => ({done:[true,true,false,false,false,false,false], notes:{0:'Lembrei que nada me falta, mesmo com as contas do mês.',1:''}, finished:false, saved:false, readSize:19, translation:'ARC 1911', reminder:'07:00', theme:'auto'});
+let S;
+try{ S = JSON.parse(localStorage.getItem(KEY)) || fresh(); }catch(e){ S = fresh(); }
+const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} };
+
+let view = {name:'home'};
+let player = {t:0, on:false, timer:null};
+const DUR = 102; // 1:42 de oração narrada
+const $screen = document.getElementById('screen');
+const $tab = document.getElementById('tabbar');
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const doneCount = () => S.done.filter(Boolean).length;
+const nextIdx = () => S.done.indexOf(false);
+const fmt = s => `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1800);}
+function applyTheme(){ const r=document.documentElement; if(S.theme==='auto') r.removeAttribute('data-theme'); else r.setAttribute('data-theme', S.theme); r.style.setProperty('--read-size', S.readSize+'px'); }
+
+function sevenDots(){
+  const n = nextIdx();
+  return `<div class="seven" aria-label="${doneCount()} de 7 trechos lidos">${S.done.map((d,i)=>`<div class="dot ${d?'done':(i===n?'now':'')}">${d?ICON.check:i+1}</div>`).join('')}</div>`;
+}
+
+const TABS=[['home','Início',ICON.home],['journeys','Jornadas',ICON.path],['bible','Bíblia',ICON.book],['diary','Diário',ICON.diary],['profile','Perfil',ICON.user]];
+const TAB_OF = {home:'home',journeys:'journeys',journey:'journeys',other:'journeys',reader:'journeys',generating:'journeys',result:'journeys',bible:'bible',chapters:'bible',chapter:'bible',diary:'diary',diaryItem:'diary',profile:'profile'};
+function renderTabs(){
+  const cur = TAB_OF[view.name];
+  $tab.innerHTML = TABS.map(([k,l,ic])=>`<button class="tab" data-go="${k}" ${cur===k?'aria-current="page"':''}>${ic}<span>${l}</span></button>`).join('');
+}
+
+function go(name, extra){ stopPlayer(); view = Object.assign({name}, extra||{}); render(); $screen.scrollTop = 0; }
+
+/* telas */
+const V = {};
+V.home = () => {
+  const n = nextIdx(), all = doneCount()===7;
+  const hour = new Date().getHours();
+  const hi = hour<12?'Bom dia':hour<18?'Boa tarde':'Boa noite';
+  const cta = S.finished ? `<button class="btn light" data-go="result">Ouvir minha oração</button>`
+    : all ? `<button class="btn" data-go="generating">Ver resumo e oração</button>`
+    : `<button class="btn" data-read="${n}">Ler o trecho de hoje · ${PAZ.days[n].short}</button>`;
+  return `<div class="stack">
+    <div class="row between"><div><div class="eyebrow">${hi}</div><h2 style="font-size:24px">Maria</h2></div>
+      <div class="card row small" style="padding:8px 12px;border-radius:999px;font-weight:700" title="Dias seguidos">
+        <span style="color:var(--dawn)">●</span> ${3+doneCount()} dias seguidos</div></div>
+    <section class="hero">
+      <div class="eyebrow">Jornada de 7 · ${S.finished?'concluída':`trecho ${Math.min(doneCount()+1,7)} de 7`}</div>
+      <h2>${PAZ.title}</h2>
+      ${sevenDots()}
+      <div class="small" style="opacity:.85">${all?'Você leu os 7 trechos. Sua oração está pronta.':`Faltam ${7-doneCount()} trechos para liberar o resumo e a oração.`}</div>
+      ${cta}
+    </section>
+    <section class="card stack" style="gap:10px">
+      <div class="eyebrow">Versículo do dia</div>
+      <div class="passage" style="font-size:20px;line-height:1.5">“${VERSE_OF_DAY.text}”</div>
+      <div class="row between"><span class="small muted" style="font-weight:700">${VERSE_OF_DAY.ref}</span>
+        <button class="chipbtn" data-toast="Imagem do versículo pronta para compartilhar">Compartilhar</button></div>
+    </section>
+    <section class="stack" style="gap:10px">
+      <div class="row between"><h3>Outras jornadas</h3><button class="back" data-go="journeys">Ver todas</button></div>
+      <div class="hscroll">${OTHERS.map(o=>`<button class="theme" data-other="${o.id}"><span class="swatch" style="background:${o.color}"></span><span class="t">${o.title}</span><span class="small muted">7 trechos</span></button>`).join('')}</div>
+    </section>
+  </div>`;
+};
+
+V.journeys = () => `<div class="stack">
+  <div><div class="eyebrow">Jornadas de 7</div><h2>Escolha um caminho de leitura</h2></div>
+  <p class="muted" style="margin:0;line-height:1.5">Um trecho por dia. No sétimo, você recebe um resumo do que leu e uma oração feita a partir disso.</p>
+  <div class="card list">
+    <button class="item" data-go="journey"><span class="swatch" style="background:${PAZ.color}"></span><span class="grow"><span class="ref">${PAZ.title}</span><br><span class="small muted">${S.finished?'Concluída':`Em andamento · ${doneCount()} de 7`}</span></span><span class="chev">›</span></button>
+    ${OTHERS.map(o=>`<button class="item" data-other="${o.id}"><span class="swatch" style="background:${o.color}"></span><span class="grow"><span class="ref">${o.title}</span><br><span class="small muted">7 trechos</span></span><span class="chev">›</span></button>`).join('')}
+  </div>
+  <div class="card row" style="gap:14px"><div class="badge final">+</div><div class="grow"><h3>Leitura livre</h3><div class="small muted">Monte sua própria jornada escolhendo os 7 trechos.</div></div>
+    <button class="chipbtn" data-toast="Leitura livre entra na próxima versão da prévia">Criar</button></div>
+</div>`;
+
+V.journey = () => {
+  const n = nextIdx(), all = doneCount()===7;
+  return `<div class="stack">
+  <button class="back" data-go="journeys">‹ Jornadas</button>
+  <div><div class="eyebrow">Jornada de 7</div><h2>${PAZ.title}</h2></div>
+  <p class="muted" style="margin:0;line-height:1.5">${PAZ.intro}</p>
+  ${sevenDots()}
+  <div class="card list" style="padding-block:4px">
+    ${PAZ.days.map((d,i)=>{const st=S.done[i]?'done':(i===n?'now':'');
+      return `<button class="item" data-read="${i}"><span class="badge ${st}">${S.done[i]?ICON.check:i+1}</span><span class="grow"><span class="ref">${d.ref}</span><br><span class="small muted">${S.done[i]?'Lido':(i===n?'Leitura de hoje':'Dia '+(i+1))}</span></span><span class="chev">›</span></button>`;}).join('')}
+    <button class="item" ${all?'data-go="'+(S.finished?'result':'generating')+'"':'data-toast="Leia os 7 trechos para liberar"'}>
+      <span class="badge final">${all?'★':ICON.lock}</span><span class="grow"><span class="ref">Resumo e oração</span><br><span class="small muted">${all?'Liberado':'Libera depois do 7º trecho'}</span></span><span class="chev">›</span></button>
+  </div></div>`;
+};
+
+V.other = () => {
+  const o = OTHERS.find(x=>x.id===view.id);
+  return `<div class="stack">
+  <button class="back" data-go="journeys">‹ Jornadas</button>
+  <div class="row" style="gap:12px"><span class="swatch" style="background:${o.color};width:36px;height:36px"></span><div><div class="eyebrow">Jornada de 7</div><h2>${o.title}</h2></div></div>
+  <div class="card list" style="padding-block:4px">${o.refs.map((r,i)=>`<div class="item"><span class="badge">${i+1}</span><span class="grow ref">${r}</span></div>`).join('')}</div>
+  <button class="btn" disabled>Começar esta jornada</button>
+  <p class="note" style="margin:0">Nesta prévia, só a jornada “${PAZ.title}” está completa para ler.</p></div>`;
+};
+
+V.reader = () => {
+  const i = view.i, d = PAZ.days[i];
+  const note = S.notes[i] || '';
+  return `<div class="stack">
+    <div class="row between"><button class="back" data-go="journey">‹ ${PAZ.title}</button><span class="small muted" style="font-weight:700">${i+1} de 7</span></div>
+    <div><div class="eyebrow">${S.translation}</div><h2>${d.ref}</h2></div>
+    <div class="context">${d.context}</div>
+    <div class="passage">${d.v.map(([n,t])=>`<p><sup>${n}</sup>${t}</p>`).join('')}</div>
+    <div class="stack" style="gap:8px">
+      <label for="note" style="font-weight:700">O que falou com você hoje?</label>
+      <textarea id="note" placeholder="Escreva uma frase, se quiser. Ela ajuda a montar a sua oração.">${esc(note)}</textarea>
+      <span class="note">Opcional. Fica só com você e é usado para personalizar a oração do 7º dia.</span>
+    </div>
+    ${S.done[i]?`<button class="btn ghost" data-go="journey">Voltar à jornada</button>`:`<button class="btn" data-finish="${i}">Concluí a leitura</button>`}
+  </div>`;
+};
+
+V.generating = () => `<div class="gen">
+  <div class="sun" aria-hidden="true"></div>
+  <div><div class="eyebrow">Jornada concluída</div><h2>Preparando sua oração</h2></div>
+  <div class="steps" id="gensteps">
+    <div data-s="0">○ Lendo os 7 trechos</div>
+    <div data-s="1">○ Considerando suas anotações</div>
+    <div data-s="2">○ Escrevendo o resumo</div>
+    <div data-s="3">○ Escrevendo a oração</div>
+  </div></div>`;
+
+function firstNote(){ for(let i=0;i<7;i++){ const n=(S.notes[i]||'').trim(); if(n) return n; } return ''; }
+function summaryText(){
+  const n = firstNote();
+  return `Nestes sete dias, você caminhou do Salmo 23, onde o Senhor é o pastor que não deixa faltar nada, até o Salmo 46, onde Deus é refúgio quando tudo parece tremer. No meio do caminho, Paulo e Pedro mostraram o que fazer com a ansiedade: levar tudo a Deus em oração e lançar sobre ele cada preocupação, porque ele cuida de nós. Jesus, em Mateus e em João, ofereceu a paz que o mundo não dá e convidou a viver um dia de cada vez.${n?` Você escreveu: “${esc(n.replace(/[.!]+$/,''))}”.`:''}`;
+}
+function prayerText(){
+  const n = firstNote();
+  return `Senhor, Tu és o meu pastor, e nada me faltará. ${n?'Tu conheces o que eu escrevi nesta semana e o que pesa no meu coração. ':''}Em vez de carregar sozinho as minhas preocupações, eu as entrego a Ti, com gratidão, porque Tu cuidas de mim. Ensina-me a buscar primeiro o teu Reino e a viver só o dia de hoje. Quando a terra parecer se mover, sê o meu refúgio e a minha fortaleza. Dá-me a paz que excede todo o entendimento e guarda o meu coração e a minha mente em Cristo Jesus. Que eu não tema, porque Tu estás comigo. Em nome de Jesus, amém.`;
+}
+
+V.result = () => `<div class="stack">
+  <button class="back" data-go="journey">‹ ${PAZ.title}</button>
+  <div><div class="eyebrow">Resumo da sua jornada</div><h2>${PAZ.title}</h2></div>
+  <div class="refs">${PAZ.days.map(d=>`<span class="refchip">${d.short}</span>`).join('')}</div>
+  <p style="margin:0;line-height:1.65">${summaryText()}</p>
+  <section class="player" aria-label="Oração narrada">
+    <div class="row" style="gap:14px">
+      <button class="play" id="play" aria-label="Tocar oração">${player.on?ICON.pause:ICON.play}</button>
+      <div class="grow" style="flex:1;min-width:0"><div style="font-weight:700">Sua oração</div><div class="small" style="opacity:.8">Narrada na voz do Hunter</div></div>
+    </div>
+    <div class="bar"><i id="bar" style="width:${player.t/DUR*100}%"></i></div>
+    <div class="row between time"><span id="tcur">${fmt(player.t)}</span><span>${fmt(DUR)}</span></div>
+    <div class="small" style="opacity:.75">Prévia sem áudio. A voz entra quando a gravação estiver pronta.</div>
+  </section>
+  <div><div class="eyebrow" style="margin-bottom:8px">Sua oração</div><p class="prayer" style="margin:0">${prayerText()}</p></div>
+  <div class="row" style="gap:10px">
+    <button class="btn ghost" id="savediary">${S.saved?'Salva no diário':'Salvar no diário'}</button>
+    <button class="btn ghost" data-toast="Trecho da oração pronto para compartilhar">Compartilhar</button>
+  </div>
+  <div class="card stack" style="gap:10px"><div class="eyebrow">Próxima jornada sugerida</div>
+    <button class="item" data-other="forca" style="padding:0"><span class="swatch" style="background:#6F9FC7"></span><span class="grow ref">Força no cansaço</span><span class="chev">›</span></button></div>
+  <p class="note" style="margin:0">Resumo e oração gerados por IA a partir dos trechos lidos. Na prévia, o texto é um exemplo fixo.</p>
+</div>`;
+
+let testament = 'ot', q = '';
+V.bible = () => {
+  const list = (testament==='ot'?OT:NT).filter(([b])=>b.toLowerCase().includes(q.toLowerCase()));
+  return `<div class="stack">
+  <div><div class="eyebrow">${S.translation}</div><h2>Bíblia</h2></div>
+  <input class="search" id="bsearch" type="search" placeholder="Buscar livro" value="${esc(q)}" aria-label="Buscar livro">
+  <div class="seg"><button data-test="ot" aria-pressed="${testament==='ot'}">Antigo Testamento</button><button data-test="nt" aria-pressed="${testament==='nt'}">Novo Testamento</button></div>
+  <div class="books">${list.map(([b,c])=>`<button class="item" data-book="${b}"><span class="grow"><span style="font-weight:700">${b}</span><br><span class="small muted">${c} ${c>1?'capítulos':'capítulo'}</span></span></button>`).join('') || '<p class="muted">Nenhum livro encontrado.</p>'}</div>
+  <p class="note" style="margin:0">Funciona sem internet. Nesta prévia, só os capítulos da jornada têm texto.</p></div>`;
+};
+V.chapters = () => {
+  const all = OT.concat(NT); const c = all.find(x=>x[0]===view.book)[1];
+  return `<div class="stack"><button class="back" data-go="bible">‹ Bíblia</button>
+  <h2>${view.book}</h2>
+  <div class="grid">${Array.from({length:c},(_,k)=>k+1).map(k=>`<button data-ch="${k}" class="${(view.book+' '+k) in SAMPLE?'has':''}">${k}</button>`).join('')}</div>
+  <p class="note" style="margin:0">Números em destaque têm texto de amostra.</p></div>`;
+};
+V.chapter = () => {
+  const key = view.book+' '+view.ch, idx = SAMPLE[key];
+  const body = idx===undefined
+    ? `<div class="card muted" style="line-height:1.6">O texto completo de ${key} entra com a Bíblia inteira na versão do app.</div>`
+    : `<div class="passage">${PAZ.days[idx].v.map(([n,t])=>`<p><sup>${n}</sup>${t}</p>`).join('')}</div>${PAZ.days[idx].v.length<6?'<p class="note">Amostra com parte do capítulo.</p>':''}`;
+  return `<div class="stack"><button class="back" data-book="${view.book}">‹ ${view.book}</button>
+  <div><div class="eyebrow">${S.translation}</div><h2>${key}</h2></div>${body}
+  <div class="row" style="gap:10px"><button class="btn ghost" data-toast="Versículo marcado">Marcar</button><button class="btn ghost" data-toast="Nota criada">Anotar</button></div></div>`;
+};
+
+V.diary = () => {
+  const items = [];
+  if(S.finished) items.push({id:'cur', title:PAZ.title, date:'Esta semana', refs:PAZ.days.map(d=>d.short), prayer:prayerText()});
+  items.push(PAST);
+  const notes = Object.entries(S.notes).filter(([,t])=>t&&t.trim());
+  return `<div class="stack">
+  <div><div class="eyebrow">Diário de orações</div><h2>Suas jornadas e orações</h2></div>
+  ${items.map(it=>`<button class="card stack" style="gap:10px;text-align:left" data-diary="${it.id}">
+    <div class="row between"><span class="ref">${it.title}</span><span class="small muted">${it.date}</span></div>
+    <div class="refs">${it.refs.map(r=>`<span class="refchip">${r}</span>`).join('')}</div>
+    <div class="prayer" style="font-size:15px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${it.prayer}</div></button>`).join('')}
+  <div class="stack" style="gap:6px"><h3>Anotações da jornada atual</h3>
+    ${notes.length?`<div class="card list" style="padding-block:4px">${notes.map(([i,t])=>`<div class="item"><span class="badge">${+i+1}</span><span class="grow"><span class="small muted" style="font-weight:700">${PAZ.days[i].ref}</span><br>${esc(t)}</span></div>`).join('')}</div>`:'<p class="muted small">Nenhuma anotação ainda.</p>'}
+  </div></div>`;
+};
+V.diaryItem = () => {
+  const it = view.id==='cur' ? {title:PAZ.title,date:'Esta semana',prayer:prayerText()} : PAST;
+  return `<div class="stack"><button class="back" data-go="diary">‹ Diário</button>
+  <div><div class="eyebrow">${it.date}</div><h2>${it.title}</h2></div>
+  <p class="prayer" style="margin:0">${it.prayer}</p>
+  ${view.id==='cur'?'<button class="btn" data-go="result">Ouvir a oração</button>':''}</div>`;
+};
+
+V.profile = () => `<div class="stack">
+  <div class="row" style="gap:14px"><div class="badge final" style="width:56px;height:56px;border-radius:50%;font-size:20px">M</div>
+    <div><h2 style="font-size:22px">Maria</h2><div class="small muted">${3+doneCount()} dias seguidos · 1 jornada concluída</div></div></div>
+  <section class="premium">
+    <div class="eyebrow" style="color:inherit;opacity:.8">Bíblia Orada Premium</div>
+    <div style="font-family:var(--f-read);font-size:20px;font-weight:600">Orações personalizadas em toda jornada</div>
+    <div class="small" style="opacity:.85;line-height:1.5">Leitura livre, oração feita com as suas anotações e áudio para baixar. R$ 19,90 por mês ou R$ 149,90 por ano.</div>
+    <button class="btn" data-toast="Assinatura pelas lojas entra no app">Assinar</button>
+  </section>
+  <div class="card" style="padding-block:4px">
+    <div class="setting"><label for="tr">Tradução</label><select id="tr"><option ${S.translation==='ARC 1911'?'selected':''}>ARC 1911</option><option ${S.translation==='Bíblia Livre'?'selected':''}>Bíblia Livre</option></select></div>
+    <div class="setting"><label for="fs">Tamanho da letra</label><input id="fs" type="range" min="16" max="24" step="1" value="${S.readSize}"></div>
+    <div class="setting"><label for="rem">Lembrete diário</label><select id="rem">${['06:00','07:00','12:00','21:00'].map(h=>`<option ${S.reminder===h?'selected':''}>${h}</option>`).join('')}</select></div>
+    <div class="setting"><label for="th">Aparência</label><select id="th"><option value="auto" ${S.theme==='auto'?'selected':''}>Automática</option><option value="light" ${S.theme==='light'?'selected':''}>Clara</option><option value="dark" ${S.theme==='dark'?'selected':''}>Escura</option></select></div>
+  </div>
+  <div class="card stack" style="gap:10px"><div class="eyebrow">Controles da prévia</div>
+    <div class="row" style="gap:8px;flex-wrap:wrap"><button class="chipbtn" data-demo="skip">Pular para o 7º trecho</button><button class="chipbtn" data-demo="reset">Recomeçar a prévia</button></div></div>
+  <p class="note" style="margin:0">A voz das orações é sintetizada por IA a partir da voz do Hunter, com autorização dele.</p>
+</div>`;
+
+/* player simulado */
+function stopPlayer(){ player.on=false; clearInterval(player.timer); }
+function togglePlayer(){
+  player.on = !player.on;
+  const b = document.getElementById('play');
+  if(b){ b.innerHTML = player.on?ICON.pause:ICON.play; b.setAttribute('aria-label', player.on?'Pausar oração':'Tocar oração'); }
+  clearInterval(player.timer);
+  if(player.on){
+    if(player.t>=DUR) player.t=0;
+    player.timer = setInterval(()=>{ player.t=Math.min(DUR, player.t+1);
+      const bar=document.getElementById('bar'), tc=document.getElementById('tcur');
+      if(bar) bar.style.width=(player.t/DUR*100)+'%'; if(tc) tc.textContent=fmt(player.t);
+      if(player.t>=DUR){ togglePlayer(); } }, 250);
+  }
+}
+
+function runGenerating(){
+  const steps=[...document.querySelectorAll('#gensteps [data-s]')]; let k=0;
+  const tick=()=>{ if(view.name!=='generating') return;
+    if(k<steps.length){ steps[k].innerHTML='<span class="ok">✓</span> '+steps[k].textContent.slice(2); k++; setTimeout(tick,650); }
+    else { S.finished=true; save(); go('result'); } };
+  setTimeout(tick,600);
+}
+
+function render(){
+  applyTheme();
+  $screen.innerHTML = V[view.name]();
+  renderTabs();
+  if(view.name==='generating') runGenerating();
+  const note = document.getElementById('note');
+  if(note) note.addEventListener('input', e=>{ S.notes[view.i]=e.target.value; save(); });
+  const bs = document.getElementById('bsearch');
+  if(bs) bs.addEventListener('input', e=>{ q=e.target.value; const pos=e.target.selectionStart; render(); const nb=document.getElementById('bsearch'); nb.focus(); nb.setSelectionRange(pos,pos); });
+  const tr=document.getElementById('tr'); if(tr) tr.onchange=e=>{S.translation=e.target.value;save();toast('Tradução: '+S.translation);};
+  const fs=document.getElementById('fs'); if(fs) fs.oninput=e=>{S.readSize=+e.target.value;save();applyTheme();};
+  const rem=document.getElementById('rem'); if(rem) rem.onchange=e=>{S.reminder=e.target.value;save();toast('Lembrete às '+S.reminder);};
+  const th=document.getElementById('th'); if(th) th.onchange=e=>{S.theme=e.target.value;save();applyTheme();};
+  const sd=document.getElementById('savediary'); if(sd) sd.onclick=()=>{S.saved=true;save();sd.textContent='Salva no diário';toast('Oração salva no diário');};
+  const pl=document.getElementById('play'); if(pl) pl.onclick=togglePlayer;
+}
+
+function demo(kind){
+  if(kind==='skip'){ S.done=[true,true,true,true,true,true,false]; S.finished=false; S.saved=false; save(); go('reader',{i:6}); toast('Pronto: falta só o 7º trecho'); }
+  else { S=fresh(); save(); testament='ot'; q=''; go('home'); toast('Prévia recomeçada'); }
+}
+
+document.addEventListener('click', e=>{
+  const el = e.target.closest('[data-go],[data-read],[data-finish],[data-other],[data-toast],[data-book],[data-ch],[data-test],[data-diary],[data-demo]');
+  if(!el) return;
+  const d = el.dataset;
+  if(d.go) go(d.go);
+  else if(d.read!==undefined) go('reader',{i:+d.read});
+  else if(d.finish!==undefined){
+    const i=+d.finish; S.done[i]=true; save();
+    if(doneCount()===7){ go('generating'); }
+    else { go('journey'); toast(`Trecho ${i+1} concluído. Até amanhã!`); }
+  }
+  else if(d.other) go('other',{id:d.other});
+  else if(d.book) go('chapters',{book:d.book});
+  else if(d.ch) go('chapter',{book:view.book, ch:+d.ch});
+  else if(d.test){ testament=d.test; render(); }
+  else if(d.diary) go('diaryItem',{id:d.diary});
+  else if(d.demo) demo(d.demo);
+  else if(d.toast) toast(d.toast);
+});
+document.getElementById('demo-skip').onclick=()=>demo('skip');
+document.getElementById('demo-reset').onclick=()=>demo('reset');
+
+render();
+})();
+</script>
+</body>
+</html>
