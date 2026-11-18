@@ -172,7 +172,41 @@ input[type=range]{accent-color:var(--dawn);width:120px}
 .avatar{width:40px;height:40px;border-radius:50%;border:0;background:var(--deep);color:var(--deep-ink);font-weight:700;display:grid;place-items:center}
 .toast{position:absolute;left:50%;bottom:86px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--app);padding:10px 16px;border-radius:12px;font-size:13px;font-weight:600;opacity:0;transition:.25s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+
+/* abertura animada */
+.screen.bleed{padding:0}
+.intro{min-height:100%;background:var(--deep);color:var(--deep-ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;position:relative;overflow:hidden;cursor:pointer}
+.intro::before{content:"";position:absolute;left:50%;bottom:-180px;width:420px;height:420px;transform:translateX(-50%);border-radius:50%;
+  background:radial-gradient(circle, color-mix(in srgb, var(--dawn) 55%, transparent) 0%, transparent 65%);opacity:0;animation:dawnup 2.2s .9s ease-out forwards}
+@keyframes dawnup{to{opacity:.9;bottom:-120px}}
+.logo{display:flex;gap:7px;height:96px;align-items:flex-start}
+.logo span{width:20px;height:96px;background:var(--dawn);clip-path:polygon(0 0,100% 0,100% 100%,50% 84%,0 100%);transform:translateY(-130%);animation:drop .55s cubic-bezier(.2,.9,.3,1.25) forwards}
+.logo span:nth-child(1){animation-delay:.10s;height:70px}.logo span:nth-child(2){animation-delay:.18s;height:78px}.logo span:nth-child(3){animation-delay:.26s;height:86px}
+.logo span:nth-child(4){animation-delay:.34s}.logo span:nth-child(5){animation-delay:.42s;height:86px}.logo span:nth-child(6){animation-delay:.50s;height:78px}.logo span:nth-child(7){animation-delay:.58s;height:70px}
+@keyframes drop{to{transform:translateY(0)}}
+.wordmark{text-align:center;opacity:0;transform:translateY(10px);animation:rise2 .7s 1.05s ease-out forwards}
+.wordmark small{display:block;font-size:14px;font-weight:600;letter-spacing:.04em;opacity:.75;margin-bottom:6px}
+.wordmark b{display:block;font-family:var(--f-read);font-weight:600;font-size:38px;line-height:1.05}
+.intro .tag{font-family:var(--f-read);font-style:italic;font-size:16px;opacity:0;animation:rise2 .7s 1.6s ease-out forwards;text-align:center;padding:0 30px;line-height:1.5;position:relative}
+@keyframes rise2{to{opacity:1;transform:none}}
+.intro .skip{position:absolute;bottom:22px;font-size:12px;opacity:.55}
+/* login */
+.login{min-height:100%;display:flex;flex-direction:column}
+.login .top{background:var(--deep);color:var(--deep-ink);padding:44px 24px 34px;display:flex;flex-direction:column;align-items:flex-start;gap:18px;border-radius:0 0 28px 28px}
+.login .top .logo{height:44px;gap:4px}
+.login .top .logo span{width:10px;height:44px;transform:none;animation:none}
+.login .top h1{font-family:var(--f-read);font-weight:600;font-size:28px;line-height:1.15;margin:0}
+.login form{padding:26px 22px 22px;display:flex;flex-direction:column;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;font-weight:700}
+.field input{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;padding:14px;font:inherit;font-size:16px}
+.pw{position:relative}.pw input{width:100%;padding-right:70px}
+.pw button{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:none;font-size:13px;font-weight:700;color:var(--muted);padding:8px}
+.or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.social{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.social button{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:12px;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px}
+.err{color:#B4442E;font-size:13px;margin:-4px 0 0}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}.logo span{transform:none}.wordmark,.intro .tag{opacity:1;transform:none}.intro::before{opacity:.9}}
 </style>
 </head>
 <body>
@@ -277,7 +311,7 @@ const NT = [['Mateus',28],['Marcos',16],['Lucas',24],['João',21],['Atos',28],['
 
 /* estado */
 const KEY='palavra-orada-previa-v2';
-const fresh = () => ({seenSplash:false, active:'ansiedade', prog:{ansiedade:[true,true,false,false,false,false,false]}, notes:{ansiedade:{0:'Lembrei que nada me falta, mesmo com as contas do mês.'}}, finished:{}, saved:{}, fast:{}, readSize:19, translation:'ARC 1911', reminder:'07:00', theme:'auto'});
+const fresh = () => ({logged:false, email:'', seenSplash:false, active:'ansiedade', prog:{ansiedade:[true,true,false,false,false,false,false]}, notes:{ansiedade:{0:'Lembrei que nada me falta, mesmo com as contas do mês.'}}, finished:{}, saved:{}, fast:{}, readSize:19, translation:'ARC 1911', reminder:'07:00', theme:'auto'});
 let S;
 try{ S = JSON.parse(localStorage.getItem(KEY)) || fresh(); }catch(e){ S = fresh(); }
 const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} };
@@ -286,7 +320,9 @@ const notes = id => (S.notes[id] = S.notes[id] || {});
 const done = id => prog(id).filter(Boolean).length;
 const next = id => prog(id).indexOf(false);
 
-let view = S.seenSplash ? {name:'home'} : {name:'splash'};
+let view = {name:'intro'};
+const afterIntro = () => S.logged ? (S.seenSplash?'home':'splash') : 'login';
+let introTimer = null;
 let player = {t:0,on:false,timer:null}; const DUR = 102;
 const $screen = document.getElementById('screen'), $tab = document.getElementById('tabbar');
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -301,11 +337,33 @@ function bar7(id){ return `<span class="bar7">${prog(id).map(d=>`<i class="${d?'
 
 const TABS=[['home','Início',ICON.home],['topics','Orações',ICON.diary],['bible','Bíblia',ICON.book],['fast','Jejum',ICON.fast],['diary','Diário',ICON.pray]];
 const TAB_OF={home:'home',topics:'topics',topic:'topics',reader:'topics',generating:'topics',result:'topics',bible:'bible',chapters:'bible',chapter:'bible',fast:'fast',diary:'diary',diaryItem:'diary',profile:'home'};
-function renderTabs(){ $tab.hidden = view.name==='splash'; const cur=TAB_OF[view.name];
+function renderTabs(){ $tab.hidden = ['splash','intro','login'].includes(view.name); const cur=TAB_OF[view.name];
   $tab.innerHTML = TABS.map(([k,l,ic])=>`<button class="tab" data-go="${k}" ${cur===k?'aria-current="page"':''}>${ic}<span>${l}</span></button>`).join(''); }
 function go(name, extra){ stopPlayer(); view=Object.assign({name},extra||{}); render(); $screen.scrollTop=0; }
 
 const VW = {};
+
+const LOGO = '<div class="logo" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>';
+VW.intro = () => `<div class="intro" data-skipintro role="button" aria-label="Bíblia Palavra Orada. Toque para continuar.">
+  ${LOGO}
+  <div class="wordmark"><small>Bíblia</small><b>Palavra Orada</b></div>
+  <div class="tag">A cada 7 capítulos, uma oração.</div>
+  <div class="skip">Toque para continuar</div>
+</div>`;
+VW.login = () => `<div class="login">
+  <div class="top">${LOGO}<h1>Entre para continuar sua jornada de oração</h1></div>
+  <form id="loginform" novalidate>
+    <div class="field"><label for="em">E-mail</label><input id="em" type="email" autocomplete="email" placeholder="voce@email.com" value="${esc(S.email||'')}"></div>
+    <div class="field"><label for="pw">Senha</label><div class="pw"><input id="pw" type="password" autocomplete="current-password" placeholder="Sua senha"><button type="button" id="pwtoggle">Mostrar</button></div></div>
+    <p class="err" id="loginerr" hidden></p>
+    <button class="btn" type="submit">Entrar</button>
+    <button class="back" type="button" data-toast="Na prévia, qualquer e-mail funciona" style="align-self:center">Esqueci minha senha</button>
+    <div class="or">ou</div>
+    <div class="social"><button type="button" data-fakelogin>Google</button><button type="button" data-fakelogin>Apple</button></div>
+    <p class="small muted" style="text-align:center;margin:6px 0 0">Ainda não tem conta? <button class="back" type="button" data-fakelogin style="color:var(--dawn);display:inline">Criar conta</button></p>
+    <p class="note" style="text-align:center">Prévia: qualquer e-mail e senha entram.</p>
+  </form>
+</div>`;
 VW.splash = () => `<div class="splash">
   <div class="stack" style="gap:26px">
     <div class="mark" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
@@ -324,8 +382,8 @@ VW.home = () => {
     : all ? `<button class="btn" data-gen="${a.id}">Ver resumo e oração</button>`
     : `<button class="btn" data-read="${a.id}" data-i="${n}">Ler ${a.ch[n][0]}</button>`;
   return `<div class="stack">
-    <div class="row between"><div><div class="label">${hi}</div><h2 style="font-size:24px">Maria</h2></div>
-      <button class="avatar" data-go="profile" aria-label="Perfil e configurações">M</button></div>
+    <div class="row between"><div><div class="label">${hi}</div><h2 style="font-size:24px">${esc(userName())}</h2></div>
+      <button class="avatar" data-go="profile" aria-label="Perfil e configurações">${esc(userName()[0]||"M")}</button></div>
     <section class="hero">
       ${ribbons(a.id)}
       <div class="label">${fin?'Oração pronta':`Capítulo ${Math.min(done(a.id)+1,7)} de 7`}</div>
@@ -348,6 +406,7 @@ VW.home = () => {
     </section>
   </div>`;
 };
+function userName(){ const e=(S.email||'').split('@')[0].replace(/[._-]+/g,' ').trim(); return e? e.replace(/\b\w/g,c=>c.toUpperCase()).split(' ')[0] : 'Maria'; }
 function topicCard(t){ return `<button class="topic" data-topic="${t.id}"><span class="row" style="gap:8px"><span class="swatch" style="background:${t.color}"></span><span class="small muted">${S.finished[t.id]?'Concluída':done(t.id)?done(t.id)+' de 7':'7 capítulos'}</span></span><span class="t">${t.title}</span>${bar7(t.id)}</button>`; }
 
 VW.topics = () => `<div class="stack">
@@ -480,8 +539,8 @@ VW.diaryItem = () => { const t=byId(view.id);
 
 VW.profile = () => `<div class="stack">
   <button class="back" data-go="home">‹ Início</button>
-  <div class="row" style="gap:14px"><div class="avatar" style="width:56px;height:56px;font-size:20px">M</div>
-    <div><h2 style="font-size:22px">Maria</h2><div class="small muted">${Object.keys(S.finished).length} ${Object.keys(S.finished).length===1?'oração recebida':'orações recebidas'}</div></div></div>
+  <div class="row" style="gap:14px"><div class="avatar" style="width:56px;height:56px;font-size:20px">${esc(userName()[0]||"M")}</div>
+    <div><h2 style="font-size:22px">${esc(userName())}</h2><div class="small muted">${esc(S.email||'')}</div><div class="small muted">${Object.keys(S.finished).length} ${Object.keys(S.finished).length===1?'oração recebida':'orações recebidas'}</div></div></div>
   <section class="premium">
     <div class="label" style="color:inherit;opacity:.8">Premium</div>
     <div style="font-family:var(--f-read);font-size:20px;font-weight:600">Orações personalizadas em todos os tópicos</div>
@@ -494,6 +553,7 @@ VW.profile = () => `<div class="stack">
     <div class="setting"><label for="rem">Lembrete diário</label><select id="rem">${['06:00','07:00','12:00','21:00'].map(h=>`<option ${S.reminder===h?'selected':''}>${h}</option>`).join('')}</select></div>
     <div class="setting"><label for="th">Aparência</label><select id="th"><option value="auto" ${S.theme==='auto'?'selected':''}>Automática</option><option value="light" ${S.theme==='light'?'selected':''}>Clara</option><option value="dark" ${S.theme==='dark'?'selected':''}>Escura</option></select></div>
   </div>
+  <button class="btn ghost" data-logout>Sair da conta</button>
   <div class="card stack" style="gap:10px"><div class="label">Controles da prévia</div>
     <div class="row" style="gap:8px;flex-wrap:wrap"><button class="chipbtn" data-demo="skip">Pular para o 7º capítulo</button><button class="chipbtn" data-demo="reset">Recomeçar a prévia</button></div></div>
 </div>`;
@@ -512,7 +572,12 @@ function runGenerating(id){ const steps=[...document.querySelectorAll('#gensteps
     else { S.finished[id]=true; save(); go('result',{id}); } };
   setTimeout(tick,600); }
 
-function render(){ applyTheme(); $screen.innerHTML=VW[view.name](); renderTabs();
+function render(){ applyTheme(); clearTimeout(introTimer); $screen.className='screen'+(['intro','login'].includes(view.name)?' bleed':''); $screen.innerHTML=VW[view.name](); renderTabs();
+  if(view.name==='intro'){ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches; introTimer=setTimeout(()=>go(afterIntro()), reduce?1200:3200); }
+  const lf=document.getElementById('loginform'); if(lf){ lf.onsubmit=ev=>{ ev.preventDefault(); const em=document.getElementById('em').value.trim(), pw=document.getElementById('pw').value;
+      const er=document.getElementById('loginerr'); if(!em||!pw){ er.hidden=false; er.textContent='Digite um e-mail e uma senha. Na prévia, qualquer um serve.'; return; }
+      S.logged=true; S.email=em; save(); go(S.seenSplash?'home':'splash'); toast('Bem-vindo!'); };
+    document.getElementById('pwtoggle').onclick=e=>{ const i=document.getElementById('pw'); const show=i.type==='password'; i.type=show?'text':'password'; e.target.textContent=show?'Ocultar':'Mostrar'; }; }
   if(view.name==='generating') runGenerating(view.id);
   const note=document.getElementById('note'); if(note) note.addEventListener('input',e=>{ notes(view.id)[view.i]=e.target.value; save(); });
   const bs=document.getElementById('bsearch'); if(bs) bs.addEventListener('input',e=>{ q=e.target.value; const p=e.target.selectionStart; render(); const nb=document.getElementById('bsearch'); nb.focus(); nb.setSelectionRange(p,p); });
@@ -527,13 +592,16 @@ function render(){ applyTheme(); $screen.innerHTML=VW[view.name](); renderTabs()
 
 function demo(kind){
   if(kind==='skip'){ const id=S.active; S.prog[id]=[true,true,true,true,true,true,false]; delete S.finished[id]; save(); go('reader',{id,i:6}); toast('Falta só o 7º capítulo'); }
-  else { S=fresh(); save(); testament='ot'; q=''; go('splash'); }
+  else { S=fresh(); save(); testament='ot'; q=''; go('intro'); }
 }
 
 document.addEventListener('click', e=>{
-  const el=e.target.closest('[data-go],[data-read],[data-finish],[data-topic],[data-gen],[data-toast],[data-book],[data-ch],[data-test],[data-diary],[data-demo],[data-start],[data-activate]');
+  const el=e.target.closest('[data-skipintro],[data-fakelogin],[data-logout],[data-go],[data-read],[data-finish],[data-topic],[data-gen],[data-toast],[data-book],[data-ch],[data-test],[data-diary],[data-demo],[data-start],[data-activate]');
   if(!el) return; const d=el.dataset;
-  if(d.start!==undefined){ S.seenSplash=true; save(); go('home'); }
+  if(d.skipintro!==undefined){ go(afterIntro()); }
+  else if(d.fakelogin!==undefined){ S.logged=true; save(); go(S.seenSplash?'home':'splash'); toast('Bem-vindo!'); }
+  else if(d.logout!==undefined){ S.logged=false; save(); go('login'); toast('Você saiu da conta'); }
+  else if(d.start!==undefined){ S.seenSplash=true; save(); go('home'); }
   else if(d.go) go(d.go, d.id?{id:d.id}:{});
   else if(d.read) go('reader',{id:d.read,i:+d.i});
   else if(d.finish){ const id=d.finish,i=+d.i; prog(id)[i]=true; S.active=id; save();
