@@ -213,6 +213,42 @@ input[type=range]{accent-color:var(--dawn);width:120px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.two .field{min-width:0}.two input{width:100%;min-width:0}
 .demo-note{font-size:12.5px;line-height:1.5;background:color-mix(in srgb,var(--dawn) 12%,var(--surface));border-radius:12px;padding:10px 12px}
 @keyframes spin{to{transform:rotate(360deg)}}
+.stepper{display:flex;align-items:flex-start;gap:0;margin:2px 0 4px;width:100%;align-self:stretch}
+.stepper .st{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;font-size:12px;font-weight:700;color:var(--muted,#8a8f98)}
+.stepper .st::before{content:"";position:absolute;top:13px;right:50%;width:100%;height:3px;background:var(--line);z-index:0;transition:background .4s}
+.stepper .st:first-child::before{display:none}
+.stepper .st.done::before,.stepper .st.cur::before{background:var(--dawn)}
+.stepper .b{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:2px solid var(--line);z-index:1;font-size:13px;transition:all .3s}
+.stepper .st.cur{color:var(--ink)}.stepper .st.cur .b{border-color:var(--dawn);color:var(--dawn);box-shadow:0 0 0 4px color-mix(in srgb,var(--dawn) 20%,transparent)}
+.stepper .st.done{color:var(--ink)}.stepper .st.done .b{background:var(--dawn);border-color:var(--dawn);color:#1b1408}
+.perks{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.perks li{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.4}
+.perks .ck{flex:none;width:20px;height:20px;border-radius:50%;background:color-mix(in srgb,var(--dawn) 22%,transparent);color:var(--dawn);display:grid;place-items:center;font-size:12px;font-weight:900}
+.plan{transition:transform .15s,border-color .2s,box-shadow .2s}.plan:active{transform:scale(.98)}
+.status{display:inline-flex;align-items:center;gap:8px;align-self:center;font-size:13px;font-weight:700;padding:7px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+.pulse{width:9px;height:9px;border-radius:50%;background:var(--dawn);animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.7)}}
+.howto{counter-reset:h;display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.howto li{counter-increment:h;display:flex;gap:10px;font-size:14px;line-height:1.4}
+.howto li::before{content:counter(h);flex:none;width:22px;height:22px;border-radius:50%;background:var(--dawn);color:#1b1408;font-weight:800;font-size:12px;display:grid;place-items:center}
+.ccard{position:relative;aspect-ratio:1.586;border-radius:18px;padding:18px;color:#fff;background:linear-gradient(135deg,#1d2a44,#3b2d5c 55%,#c47f1a);box-shadow:0 14px 30px -12px rgba(0,0,0,.45);display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+.ccard::after{content:"";position:absolute;inset:-40% -20% auto auto;width:70%;aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.08)}
+.ccard .chip{width:38px;height:28px;border-radius:6px;background:linear-gradient(135deg,#e9c46a,#b8892c)}
+.ccard .num{font-family:ui-monospace,Menlo,monospace;font-size:19px;letter-spacing:1.5px;white-space:nowrap}
+.ccard .lbl{font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.8px}
+.ccard .val{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ccard .brand{font-weight:900;font-style:italic;font-size:18px}
+.paycircle{width:84px;height:84px;border-radius:50%;border:5px solid var(--line);border-top-color:var(--dawn);animation:spin .9s linear infinite}
+.pop{animation:pop .5s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.fadeup{animation:fadeup .45s ease both}
+@keyframes fadeup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50}
+.confetti i{position:absolute;top:-14px;width:8px;height:14px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+.teaser{display:flex;gap:14px;align-items:center;text-align:left;width:100%;border:0;border-radius:18px;padding:16px;color:var(--deep-ink);background:linear-gradient(135deg,var(--deep),color-mix(in srgb,var(--deep) 60%,var(--dawn)))}
+@media (prefers-reduced-motion:reduce){.pulse,.paycircle,.pop,.fadeup,.confetti i{animation:none}.confetti{display:none}}
+
 .field{display:flex;flex-direction:column;gap:6px}
 .field label{font-size:13px;font-weight:700}
 .field input{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;padding:14px;font:inherit;font-size:16px}
@@ -414,6 +450,7 @@ VW.home = () => {
     <button class="card row" style="gap:14px;text-align:left" data-go="fast">
       <div class="badge final">${ICON.fast.replace('<svg','<svg width="20" height="20"')}</div>
       <div class="grow"><h3>Como jejuar</h3><div class="small muted">O que a Bíblia ensina, tipos de jejum e um plano para começar.</div></div><span class="chev">›</span></button>
+    ${S.premium?'':`<button class="teaser" data-go="plans" data-from="home"><div class="grow"><div class="label" style="color:inherit;opacity:.8">Premium</div><div style="font-family:var(--f-read);font-size:18px;font-weight:600;margin:2px 0 4px">Uma oração feita com as suas anotações</div><div class="small" style="opacity:.85">A partir de R$ 8,32 por mês · Pix ou cartão</div></div><span class="chev" style="color:inherit">›</span></button>`}
     <section class="card stack" style="gap:10px">
       <div class="label">Para lembrar</div>
       <div class="passage" style="font-size:20px;line-height:1.5">“Pedis e não recebeis, porque pedis mal.”</div>
@@ -567,62 +604,82 @@ function fakeQR(seed){ const n=29; let h=0; for(const c of seed) h=(h*31+c.charC
   return `<svg viewBox="-1 -1 ${n+2} ${n+2}" shape-rendering="crispEdges" fill="#111" role="img" aria-label="QR Code de exemplo">${box(0,0)}${box(n-7,0)}${box(0,n-7)}${r}</svg>`; }
 const pixCode=p=>`00020126580014BR.GOV.BCB.PIX0136previa-palavra-orada-nao-pague5204000053039865405${PLANS[p].total.toFixed(2)}5802BR5920PALAVRA ORADA PREVIA6009SAO PAULO62070503***6304ABCD`;
 
+const stepper=n=>`<div class="stepper" aria-label="Passo ${n} de 3">${['Plano','Pagamento','Pronto'].map((l,i)=>`<div class="st ${i+1<n?'done':i+1===n?'cur':''}"><span class="b">${i+1<n?'✓':i+1}</span>${l}</div>`).join('')}</div>`;
+const PERKS=['Oração personalizada com as suas anotações','Todos os 8 tópicos liberados','Bíblia em ordem completa, de Gênesis a Apocalipse','Áudio das orações (em breve)'];
+const perks=(cls='')=>`<ul class="perks">${PERKS.map((t,i)=>`<li class="${cls}" style="animation-delay:${.15+i*.12}s"><span class="ck">✓</span>${t}</li>`).join('')}</ul>`;
+const methodHint=c=>c.method==='pix'?(c.plan==='mensal'?'Pix de R$ 9,90 agora. Todo mês chega um lembrete para renovar.':'Um Pix de R$ 49,90 libera os 6 meses de uma vez.'):(c.plan==='mensal'?'R$ 9,90 cobrado todo mês no cartão. Cancela quando quiser.':'R$ 49,90 em até 6x sem juros no cartão.');
+
 VW.plans = () => { const c=CO(); const P=S.premium;
   return `<div class="stack">
-  <button class="back" data-go="profile">‹ Perfil</button>
-  <div><div class="label">Premium</div><h2>Escolha seu plano</h2><p class="muted small" style="margin:6px 0 0;line-height:1.5">Oração personalizada com as suas anotações, todos os tópicos, Bíblia em ordem completa e áudio das orações.</p></div>
+  <button class="back" data-go="${c.from||'profile'}">‹ Voltar</button>
+  ${stepper(1)}
+  <div><div class="label">Premium</div><h2>Ore mais fundo, todo dia</h2></div>
+  ${perks()}
   ${P?`<div class="demo-note">Você já tem o plano ${PLANS[P.plan].name.toLowerCase()} ativo. Na prévia dá para testar de novo.</div>`:''}
-  ${['semestral','mensal'].map(k=>{const p=PLANS[k];return `<button class="plan ${c.plan===k?'on':''}" data-plan="${k}">${p.tag?`<span class="tag">${p.tag}</span>`:''}<span class="dot"></span>
+  ${['semestral','mensal'].map(k=>{const p=PLANS[k];return `<button class="plan ${c.plan===k?'on':''}" data-plan="${k}" aria-pressed="${c.plan===k}">${p.tag?`<span class="tag">${p.tag}</span>`:''}<span class="dot"></span>
     <span style="flex:1;min-width:0"><span class="row between" style="gap:8px;align-items:baseline"><strong style="font-size:16px">${p.name}</strong><span class="price">${p.price}</span></span>
     <span class="small muted" style="display:block;margin-top:2px">${p.per}</span><span class="small" style="display:block;margin-top:8px;line-height:1.45">${p.desc}</span></span></button>`;}).join('')}
-  <div class="stack" style="gap:8px"><div class="label">Forma de pagamento</div>
-    <div class="seg"><button class="${c.method==='pix'?'on':''}" data-method="pix">Pix</button><button class="${c.method==='card'?'on':''}" data-method="card">Cartão de crédito</button></div>
-    <div class="small muted" style="line-height:1.45">${c.method==='pix'?(c.plan==='mensal'?'Pix de R$ 9,90 agora. Todo mês chega um novo Pix para renovar.':'Um Pix de R$ 49,90 libera os 6 meses de uma vez.'):(c.plan==='mensal'?'R$ 9,90 cobrado todo mês no cartão.':'R$ 49,90 em até 6x sem juros no cartão.')}</div></div>
-  <button class="btn" data-checkout>Continuar com ${PLANS[c.plan].price}</button>
-  <p class="small muted" style="text-align:center;margin:0">Prévia: nenhum pagamento de verdade é feito.</p>
+  <div class="stack" style="gap:8px"><div class="label">Como você prefere pagar?</div>
+    <div class="seg"><button class="${c.method==='pix'?'on':''}" data-method="pix" aria-pressed="${c.method==='pix'}">Pix</button><button class="${c.method==='card'?'on':''}" data-method="card" aria-pressed="${c.method==='card'}">Cartão de crédito</button></div>
+    <div class="small muted" style="line-height:1.45">${methodHint(c)}</div></div>
+  <button class="btn" data-checkout>Continuar com ${PLANS[c.plan].price} ›</button>
+  <p class="small muted" style="text-align:center;margin:0">Cancele quando quiser · Prévia: nada é cobrado</p>
   </div>`; };
 
 VW.pix = () => { const c=CO(); const code=pixCode(c.plan);
   return `<div class="stack">
-  <button class="back" data-go="plans">‹ Planos</button>
-  <div><div class="label">Pagar com Pix</div><h2>${PLANS[c.plan].price} <span class="muted" style="font-size:16px;font-weight:500">· ${PLANS[c.plan].name.toLowerCase()}</span></h2></div>
+  <button class="back" data-go="plans">‹ Trocar plano</button>
+  ${stepper(2)}
+  <div class="row between" style="align-items:baseline"><div><div class="label">Pagar com Pix</div><h2>${PLANS[c.plan].price}</h2></div><span class="small muted">${PLANS[c.plan].name}</span></div>
+  <span class="status"><span class="pulse"></span>Aguardando pagamento · <span id="pixtimer">30:00</span></span>
+  <div class="qr fadeup">${fakeQR(code)}</div>
   <div class="demo-note"><strong>QR Code de exemplo.</strong> Não pague: na prévia ele não leva a conta nenhuma.</div>
-  <div class="qr">${fakeQR(code)}</div>
-  <div class="small muted" style="text-align:center">Abra o app do seu banco, escolha Pix e leia o QR Code. Ou copie o código:</div>
+  <ol class="howto"><li>Abra o app do seu banco e entre na área Pix</li><li>Leia o QR Code ou cole o código abaixo</li><li>Confirme e volte aqui: o Premium libera na hora</li></ol>
   <div class="pixcode" id="pixcode">${code}</div>
-  <button class="btn ghost" data-copypix>Copiar código Pix</button>
+  <button class="btn ghost" data-copypix id="copybtn">Copiar código Pix</button>
   <button class="btn" data-pay="pix">Já paguei</button>
-  <p class="small muted" style="text-align:center;margin:0">O código vence em 30 minutos. A confirmação chega em segundos.</p>
   </div>`; };
 
 VW.card = () => { const c=CO(); const p=PLANS[c.plan];
-  const opts=c.plan==='semestral'?[1,2,3,4,5,6].map(n=>`<option value="${n}">${n}x de ${brl(p.total/n)}${n>1?' sem juros':''}</option>`).join(''):`<option>R$ 9,90 por mês</option>`;
+  const opts=c.plan==='semestral'?[1,2,3,4,5,6].map(n=>`<option value="${n}" ${n===6?'selected':''}>${n}x de ${brl(p.total/n)}${n>1?' sem juros':''}</option>`).join(''):`<option value="1">R$ 9,90 por mês</option>`;
+  const nm=esc(userName().toUpperCase());
   return `<div class="stack">
-  <button class="back" data-go="plans">‹ Planos</button>
-  <div><div class="label">Cartão de crédito</div><h2>${p.price} <span class="muted" style="font-size:16px;font-weight:500">· ${p.name.toLowerCase()}</span></h2></div>
-  <div class="demo-note"><strong>Prévia:</strong> nenhuma cobrança é feita. Não digite dados de um cartão real, o número de teste já vem preenchido.</div>
+  <button class="back" data-go="plans">‹ Trocar plano</button>
+  ${stepper(2)}
+  <div class="row between" style="align-items:baseline"><div><div class="label">Cartão de crédito</div><h2>${p.price}</h2></div><span class="small muted">${p.name}</span></div>
+  <div class="ccard fadeup" aria-hidden="true">
+    <div class="row between"><span class="chip"></span><span class="brand" id="ccbrand">VISA</span></div>
+    <div class="num" id="ccnum">4242 4242 4242 4242</div>
+    <div class="row between" style="gap:12px"><div style="min-width:0"><div class="lbl">Nome</div><div class="val" id="ccname">${nm}</div></div><div><div class="lbl">Validade</div><div class="val" id="ccexp">12/30</div></div></div>
+  </div>
+  <div class="demo-note"><strong>Prévia:</strong> nenhuma cobrança é feita. Não digite um cartão real, o número de teste já vem preenchido.</div>
   <form id="cardform" class="stack" style="gap:12px" autocomplete="off">
-    <div class="field"><label for="cn">Número do cartão</label><input id="cn" inputmode="numeric" value="4242 4242 4242 4242" autocomplete="off"></div>
-    <div class="field"><label for="cnm">Nome no cartão</label><input id="cnm" value="${esc(userName().toUpperCase())}" autocomplete="off"></div>
-    <div class="two"><div class="field"><label for="cv">Validade</label><input id="cv" value="12/30" inputmode="numeric" autocomplete="off"></div>
-      <div class="field"><label for="cc">CVV</label><input id="cc" value="123" inputmode="numeric" autocomplete="off"></div></div>
+    <div class="field"><label for="cn">Número do cartão</label><input id="cn" inputmode="numeric" maxlength="19" value="4242 4242 4242 4242" autocomplete="off"></div>
+    <div class="field"><label for="cnm">Nome como está no cartão</label><input id="cnm" value="${nm}" autocomplete="off"></div>
+    <div class="two"><div class="field"><label for="cv">Validade</label><input id="cv" value="12/30" maxlength="5" inputmode="numeric" autocomplete="off"></div>
+      <div class="field"><label for="cc">CVV</label><input id="cc" value="123" maxlength="4" inputmode="numeric" autocomplete="off"></div></div>
     <div class="field"><label for="inst">Parcelas</label><select id="inst">${opts}</select></div>
-    <button class="btn" type="submit">Pagar ${p.price}</button>
+    <button class="btn" type="submit">Pagar ${p.price} ›</button>
   </form>
   </div>`; };
 
-VW.paying = () => `<div class="stack" style="align-items:center;text-align:center;padding-top:80px;gap:18px">
-  <div class="spinner" style="width:44px;height:44px;border-radius:50%;border:4px solid var(--line);border-top-color:var(--dawn);animation:spin 1s linear infinite"></div>
-  <h3>${view.method==='pix'?'Confirmando seu Pix…':'Aprovando o pagamento…'}</h3><p class="muted small" style="margin:0">Só um instante.</p></div>`;
+VW.paying = () => `<div class="stack" style="align-items:center;text-align:center;padding-top:70px;gap:20px">
+  ${stepper(2)}
+  <div class="paycircle"></div>
+  <h3 id="paystep">${view.method==='pix'?'Procurando seu Pix…':'Falando com o banco…'}</h3><p class="muted small" style="margin:0">Não feche o app, é rapidinho.</p></div>`;
 
 VW.paid = () => { const P=S.premium; const p=PLANS[P.plan];
-  return `<div class="stack" style="align-items:center;text-align:center;padding-top:40px;gap:16px">
-  <div style="width:72px;height:72px;border-radius:50%;background:var(--dawn);display:grid;place-items:center;color:#1b1408"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
-  <h2>Premium ativado!</h2>
-  <p class="muted" style="margin:0;line-height:1.5">Plano ${p.name.toLowerCase()} · ${p.price} ${p.per} · ${P.method==='pix'?'Pix':'cartão'+(P.inst>1?` em ${P.inst}x`:'')}</p>
-  <p class="prayer" style="margin:0;font-size:16px">"Pedi, e dar-se-vos-á; buscai, e achareis." Mateus 7:7</p>
-  <button class="btn" data-go="home">Começar a orar</button>
-  <button class="back" data-go="profile">Ver no perfil</button></div>`; };
+  const colors=['#c47f1a','#e9c46a','#6c8ebf','#9b6fb0','#5aa17f','#e07a5f'];
+  const conf=Array.from({length:46},(_,i)=>`<i style="left:${(i*37)%100}%;background:${colors[i%6]};animation-duration:${2.2+(i%7)*.25}s;animation-delay:${(i%9)*.08}s;transform:rotate(${i*23}deg)"></i>`).join('');
+  return `<div class="confetti">${conf}</div><div class="stack" style="align-items:center;text-align:center;gap:16px">
+  ${stepper(4)}
+  <div class="pop" style="width:76px;height:76px;border-radius:50%;background:var(--dawn);display:grid;place-items:center;color:#1b1408;margin-top:8px"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+  <h2 class="fadeup">Bem-vindo ao Premium, ${esc(userName())}!</h2>
+  <p class="muted fadeup" style="margin:0;line-height:1.5">Plano ${p.name.toLowerCase()} · ${p.price} ${p.per} · ${P.method==='pix'?'Pix':'cartão'+(P.inst>1?` em ${P.inst}x`:'')}</p>
+  <div class="card" style="text-align:left;width:100%"><div class="label" style="margin-bottom:10px">Liberado agora</div>${perks('fadeup')}</div>
+  <p class="prayer fadeup" style="margin:0;font-size:16px">"Pedi, e dar-se-vos-á; buscai, e achareis." Mateus 7:7</p>
+  <button class="btn" data-topic="${S.active}">Fazer minha oração personalizada ›</button>
+  <button class="back" data-go="profile">Ver meu plano</button></div>`; };
 
 VW.profile = () => `<div class="stack">
   <button class="back" data-go="home">‹ Início</button>
@@ -660,7 +717,7 @@ function runGenerating(id){ const steps=[...document.querySelectorAll('#gensteps
     else { S.finished[id]=true; save(); go('result',{id}); } };
   setTimeout(tick,600); }
 
-function render(){ applyTheme(); clearTimeout(introTimer); $screen.className='screen'+(['intro','login'].includes(view.name)?' bleed':''); $screen.innerHTML=VW[view.name](); renderTabs();
+let payTimer; function render(){ applyTheme(); clearTimeout(introTimer); clearInterval(payTimer); $screen.className='screen'+(['intro','login'].includes(view.name)?' bleed':''); $screen.innerHTML=VW[view.name](); renderTabs();
   if(view.name==='intro'){ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches; introTimer=setTimeout(()=>go(afterIntro()), reduce?1200:3200); }
   const lf=document.getElementById('loginform'); if(lf){ lf.onsubmit=ev=>{ ev.preventDefault(); const em=document.getElementById('em').value.trim(), pw=document.getElementById('pw').value;
       const er=document.getElementById('loginerr'); if(!em||!pw){ er.hidden=false; er.textContent='Digite um e-mail e uma senha. Na prévia, qualquer um serve.'; return; }
@@ -675,6 +732,11 @@ function render(){ applyTheme(); clearTimeout(introTimer); $screen.className='sc
   const th=document.getElementById('th'); if(th) th.onchange=e=>{S.theme=e.target.value;save();applyTheme();};
   const sd=document.getElementById('savediary'); if(sd) sd.onclick=()=>{S.saved[view.id]=true;save();sd.textContent='Salva no diário';toast('Oração salva no diário');};
   const pl=document.getElementById('play'); if(pl) pl.onclick=togglePlayer;
+  const pt=document.getElementById('pixtimer'); if(pt){ let left=1800; payTimer=setInterval(()=>{ left=Math.max(0,left-1); pt.textContent=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0'); },1000); }
+  const cn=document.getElementById('cn'); if(cn){ const set=(id,v)=>{const e=document.getElementById(id); if(e) e.textContent=v;};
+    cn.oninput=()=>{ const d=cn.value.replace(/\D/g,'').slice(0,16); cn.value=d.replace(/(.{4})(?=.)/g,'$1 '); set('ccnum',(d+'•'.repeat(16-d.length)).replace(/(.{4})(?=.)/g,'$1 ')); set('ccbrand',d[0]==='5'?'MASTER':d[0]==='3'?'AMEX':d[0]==='6'?'ELO':'VISA'); };
+    document.getElementById('cnm').oninput=e=>set('ccname',e.target.value.toUpperCase()||'SEU NOME');
+    const cv=document.getElementById('cv'); cv.oninput=()=>{ const d=cv.value.replace(/\D/g,'').slice(0,4); cv.value=d.length>2?d.slice(0,2)+'/'+d.slice(2):d; set('ccexp',cv.value||'MM/AA'); }; }
   const cf=document.getElementById('cardform'); if(cf) cf.onsubmit=e=>{ e.preventDefault(); const n=document.getElementById('cn').value.replace(/\D/g,''); if(n.length<13){ toast('Use o número de teste 4242 4242 4242 4242'); return; } pay('card',+(document.getElementById('inst').value)||1); };
   document.querySelectorAll('[data-fast]').forEach(c=>c.onchange=e=>{S.fast[c.dataset.fast]=e.target.checked;save(); if(Object.values(S.fast).filter(Boolean).length===5) toast('Plano de jejum completo');});
 }
@@ -691,7 +753,7 @@ document.addEventListener('click', e=>{
   else if(d.fakelogin!==undefined){ S.logged=true; save(); go(S.seenSplash?'home':'splash'); toast('Bem-vindo!'); }
   else if(d.logout!==undefined){ S.logged=false; save(); go('login'); toast('Você saiu da conta'); }
   else if(d.start!==undefined){ S.seenSplash=true; save(); go('home'); }
-  else if(d.go) go(d.go, d.id?{id:d.id}:{});
+  else if(d.go){ if(d.go==='plans'&&d.from!==undefined) CO().from=d.from; else if(d.go==='plans'&&view.name==='profile') CO().from='profile'; go(d.go, d.id?{id:d.id}:{}); }
   else if(d.read) go('reader',{id:d.read,i:+d.i});
   else if(d.finish){ const id=d.finish,i=+d.i; prog(id)[i]=true; S.active=id; save();
     if(done(id)===7) go('generating',{id}); else { go('topic',{id}); toast(`Capítulo ${i+1} concluído. Até amanhã!`); } }
@@ -706,12 +768,15 @@ document.addEventListener('click', e=>{
   else if(d.plan){ CO().plan=d.plan; save(); render(); }
   else if(d.method){ CO().method=d.method; save(); render(); }
   else if(d.checkout!==undefined) go(CO().method==='pix'?'pix':'card');
-  else if(d.copypix!==undefined){ const t=pixCode(CO().plan); try{ navigator.clipboard.writeText(t).then(()=>toast('Código Pix copiado'),()=>toast('Código Pix copiado')); }catch(_){ toast('Código Pix copiado'); } }
+  else if(d.copypix!==undefined){ const t=pixCode(CO().plan); const ok=()=>{ toast('Código Pix copiado'); const b=document.getElementById('copybtn'); if(b){ b.textContent='✓ Código copiado'; } }; try{ navigator.clipboard.writeText(t).then(ok,ok); }catch(_){ ok(); } }
   else if(d.pay) pay(d.pay,1);
   else if(d.toast) toast(d.toast);
 });
-function pay(method,inst){ go('paying',{method}); setTimeout(()=>{ if(view.name!=='paying') return;
-  const now=new Date(); S.premium={plan:CO().plan,method,inst,since:now.toLocaleDateString('pt-BR')}; save(); go('paid'); },1600); }
+function pay(method,inst){ go('paying',{method});
+  const msgs=method==='pix'?['Pix recebido!','Liberando seu Premium…']:['Pagamento aprovado!','Liberando seu Premium…'];
+  msgs.forEach((m,i)=>setTimeout(()=>{ const el=document.getElementById('paystep'); if(el&&view.name==='paying') el.textContent=m; },700+i*700));
+  setTimeout(()=>{ if(view.name!=='paying') return;
+  const now=new Date(); S.premium={plan:CO().plan,method,inst,since:now.toLocaleDateString('pt-BR')}; save(); go('paid'); },2200); }
 document.getElementById('demo-skip').onclick=()=>demo('skip');
 document.getElementById('demo-reset').onclick=()=>demo('reset');
 render();
